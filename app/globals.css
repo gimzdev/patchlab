@@ -1,0 +1,275 @@
+@import "tailwindcss";
+
+/* Each side's traits beside the board rather than above and below it: when the board area is wider than tall, which is
+   when that leaves the board bigger (only on wide screens, where the area has a height of its own to compare) */
+@custom-variant beside {
+  @container (min-aspect-ratio: 26/25) {
+    @slot;
+  }
+}
+
+@theme inline {
+  --font-sans: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces Variable", ui-serif, Georgia, serif;
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-sunk: var(--sunk);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-soft: var(--soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-blue: var(--blue);
+  --color-red: var(--red);
+  --color-mark: var(--mark);
+  --color-mark-ink: var(--mark-ink);
+  --color-live-bar: var(--live-bar);
+  --color-patch-bar: var(--patch-bar);
+  --shadow-pop: 0 18px 40px -16px rgb(0 0 0 / 0.7), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+}
+
+/* MetaForge's palette (Patchlab is part of it): warm ink and parchment, one brass accent, a blue and a red team, and the
+   brass again on every number a patch touches */
+:root {
+  color-scheme: dark;
+  --paper: #0f0d0b;
+  --panel: #161411;
+  --sunk: #1d1a16;
+  --raised: #2a251f;
+  --ink: #f1e9d8;
+  --soft: #b8ab94;
+  --muted: #857a68;
+  --line: rgb(241 233 216 / 0.09);
+  --line-strong: rgb(241 233 216 / 0.17);
+  --accent: #e2b86a;
+  --accent-ink: #1b1306;
+  --blue: #6b9ef0;
+  --red: #e06e5c;
+  --mark: rgb(226 184 106 / 0.2);
+  --mark-solid: #e2b86a;
+  --mark-ink: #f3d9a4;
+  --live-bar: #5c5448;
+  --patch-bar: #e2b86a;
+  --cell-blue: color-mix(in oklab, var(--blue) 9%, var(--panel));
+  --cell-blue-edge: color-mix(in oklab, var(--blue) 24%, var(--panel));
+  --cell-red: color-mix(in oklab, var(--red) 9%, var(--panel));
+  --cell-red-edge: color-mix(in oklab, var(--red) 24%, var(--panel));
+  --c1: #a3a9af;
+  --c2: #4fb07c;
+  --c3: #4f93d8;
+  --c4: #b16ad6;
+  --c5: #deb04e;
+  --star-1: #c1905f;
+  --star-2: #b9c5cf;
+  --star-3: #e9c15e;
+  --tier-off: #3a342d;
+  --tier-bronze: #c1905f;
+  --tier-silver: #b9c5cf;
+  --tier-gold: #e9c15e;
+  --tier-prism: #dcc0f5;
+  /* Watching a fight: damage by type, heals, shields, mana */
+  --dmg-phys: #ec9a5c;
+  --dmg-magic: #b99cf2;
+  --dmg-true: #f1e9d8;
+  --heal: #93c98a;
+  --shield: #e7dfcc;
+  --mana: #7fb7ea;
+  --bar-bg: rgb(6 5 4 / 0.8);
+  --shadow: rgb(0 0 0 / 0.55);
+  --pop-edge: rgb(12 10 8 / 0.92);
+}
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+/* Titles in Fraunces, as on MetaForge */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 560;
+  letter-spacing: -0.015em;
+}
+::selection {
+  background: rgb(226 184 106 / 0.3);
+  color: var(--ink);
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+input[type="range"] {
+  accent-color: var(--accent);
+}
+input[type="search"]::-webkit-search-cancel-button {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+html.dragging,
+html.dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+html.sheet-open {
+  overflow: hidden;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3a342d transparent;
+}
+
+/* A small label over a group, as on MetaForge */
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* The board's hexes: each half in its team's tint, lit where a drop would land */
+.cell-blue,
+.cell-red {
+  stroke-width: 1;
+  transition: fill 0.12s, stroke 0.12s;
+}
+.cell-blue {
+  fill: var(--cell-blue);
+  stroke: var(--cell-blue-edge);
+}
+.cell-red {
+  fill: var(--cell-red);
+  stroke: var(--cell-red-edge);
+}
+.cell-blue[data-lit] {
+  fill: color-mix(in oklab, var(--blue) 22%, var(--panel));
+  stroke: var(--blue);
+}
+.cell-red[data-lit] {
+  fill: color-mix(in oklab, var(--red) 20%, var(--panel));
+  stroke: var(--red);
+}
+
+/* On wide screens the board is as big as its area allows with the run bar still in view. 100cqh is the area's height;
+   the rest is what shares it: the run bar, and the traits when they're above and below (narrow areas stack the run bar
+   on two lines) */
+@media (min-width: 1024px) {
+  .board-fit {
+    max-width: max(16rem, calc((100cqh - 17rem) * var(--aspect)));
+  }
+  @container (max-width: 34rem) {
+    .board-fit {
+      max-width: max(16rem, calc((100cqh - 20.5rem) * var(--aspect)));
+    }
+  }
+  @container (min-aspect-ratio: 26/25) {
+    .board-fit {
+      max-width: max(16rem, calc((100cqh - 7.75rem) * var(--aspect)));
+    }
+  }
+}
+
+/* Trait badges: the trait's art on the colour of the breakpoint reached */
+.trait-hex {
+  fill: var(--tier-off);
+}
+.tier-bronze .trait-hex { fill: var(--tier-bronze); }
+.tier-silver .trait-hex { fill: var(--tier-silver); }
+.tier-gold .trait-hex { fill: var(--tier-gold); }
+.tier-prism .trait-hex { fill: var(--tier-prism); }
+/* The art is a white glyph: dark on a lit badge, as in game, and dimmed on an unlit one */
+.trait-glyph {
+  color: #1b1306;
+  filter: brightness(0);
+  opacity: 0.8;
+}
+.tier-off .trait-glyph {
+  color: var(--soft);
+  filter: none;
+  opacity: 0.7;
+}
+
+/* MetaForge's grades */
+.grade-S { background: #e0704f; color: #1b0d06; }
+.grade-A { background: #deaa4f; color: #1b1306; }
+.grade-B { background: #b3c064; color: #141806; }
+.grade-C { background: #6fa6c4; color: #08141b; }
+.grade-D { background: #9a90c4; color: #110e1b; }
+
+/* Sheets slide up, toasts rise */
+@keyframes rise {
+  from { transform: translateY(100%); }
+}
+@keyframes fade {
+  from { opacity: 0; }
+}
+@keyframes lift {
+  from { opacity: 0; transform: translateY(6px); }
+}
+.sheet-panel { animation: rise 0.24s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+/* Watching a fight: numbers with an edge that reads on any hex, the result fading in, the time slider's own look */
+.replay-pop {
+  paint-order: stroke;
+  stroke: var(--pop-edge);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes settle {
+  from { opacity: 0; }
+}
+.replay-end { animation: settle 0.35s ease-out; }
+.replay-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+.replay-range::-webkit-slider-runnable-track { height: 100%; background: transparent; }
+.replay-range::-moz-range-track { background: transparent; }
+.replay-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--panel);
+}
+.replay-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--panel);
+}
+.replay-range:focus-visible { outline: none; }
+.replay-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--panel), 0 0 0 5px var(--accent); }
+.replay-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--panel), 0 0 0 5px var(--accent); }
+.sheet-scrim { animation: fade 0.2s ease-out; }
+.toast { animation: lift 0.18s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

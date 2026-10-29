@@ -1,0 +1,6 @@
+{
+  "name": "patchlab", "version": "1.3.2", "private": true, "type": "module", "engines": { "node": ">=20.9.0" },
+  "scripts": { "dev": "next dev", "tft": "node scripts/tft.mjs", "build": "node scripts/tft.mjs && next build", "start": "next start", "typecheck": "next typegen && tsc --noEmit" },
+  "dependencies": { "@fontsource-variable/fraunces": "5.3.0", "@fontsource-variable/onest": "5.3.1", "@vercel/analytics": "^2.0.1", "next": "^16.3.8", "react": "^19.3.0", "react-dom": "^19.3.0" },
+  "devDependencies": { "@tailwindcss/postcss": "^4.3.3", "@types/node": "^22", "@types/react": "^19.3.0", "@types/react-dom": "^19.3.0", "tailwindcss": "^4.3.3", "typescript": "^7.0.2" }
+}
